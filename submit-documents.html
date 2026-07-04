@@ -133,7 +133,7 @@
 
 <header class="page-head">
   <div class="wrap">
-    <span class="tag">Provider workflow · Step 4</span>
+    <span class="tag">Provider workflow · Step 5</span>
     <h1>Submit supporting documents</h1>
     <p>Upload the documentation requested by the payer for a detailed prior authorization review.</p>
   </div>
@@ -223,6 +223,8 @@
       <div class="context-item"><span class="label">Patient</span><span class="value">${submission.patientName || '—'}</span></div>
       <div class="context-item"><span class="label">Member ID</span><span class="value">${submission.memberId || '—'}</span></div>
       <div class="context-item"><span class="label">Service requested</span><span class="value">${submission.serviceNames || '—'}</span></div>
+      <div class="context-item"><span class="label">Diagnosis</span><span class="value">${submission.diagnosis || '—'}</span></div>
+      <div class="context-item"><span class="label">Place of service</span><span class="value">${submission.placeOfService || '—'}</span></div>
       <div class="context-item"><span class="label">Documents required</span><span class="value">${(submission.docs || []).length}</span></div>
     `;
   } else {

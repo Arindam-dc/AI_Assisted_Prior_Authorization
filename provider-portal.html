@@ -103,6 +103,16 @@
     background:rgba(15,157,140,.09);padding:6px 12px;border-radius:100px;
   }
 
+  /* ---- free-text "other" fallback for each control ---- */
+  .other-field{margin-top:18px;padding-top:18px;border-top:1px dashed var(--line);}
+  .other-field label{display:block;font-size:13px;font-weight:600;color:var(--ink-soft);margin-bottom:8px;}
+  .other-field input{
+    width:100%;padding:12px 14px;border-radius:9px;border:1.5px solid var(--line);
+    font-family:'Inter',sans-serif;font-size:14.5px;color:var(--ink);
+  }
+  .other-field input:focus{outline:none;border-color:var(--teal-deep);}
+  .other-field input:not(:placeholder-shown){border-color:var(--coral);background:rgba(255,107,74,.04);}
+
   /* ---- patient details form ---- */
   .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
   @media (max-width:640px){.form-grid{grid-template-columns:1fr;}}
@@ -115,6 +125,10 @@
   .field input.invalid{border-color:var(--bad);}
   .err-msg{font-size:13px;color:var(--bad);margin-top:14px;display:none;}
   .err-msg.show{display:block;}
+
+  .icd-name{font-size:13px;margin:8px 0 0;min-height:16px;}
+  .icd-name.found{color:var(--teal-deep);font-weight:600;}
+  .icd-name.not-found{color:var(--slate);font-style:italic;}
 
   /* ---- submit button ---- */
   .btn-primary{
@@ -211,18 +225,30 @@
           </select>
         </div>
         <p class="field-hint">Choose the single imaging exam being ordered for this patient.</p>
+        <div class="other-field">
+          <label for="imaging-other">Can't find the exam you need?</label>
+          <input type="text" id="imaging-other" placeholder="Type the imaging exam name">
+        </div>
       </div>
 
       <!-- CONTROL 2: Surgical — card grid -->
       <div class="panel" id="panel-surgical">
         <div class="proc-grid" id="surgical-grid"></div>
         <p class="field-hint">Click a card to select the surgical procedure being planned.</p>
+        <div class="other-field">
+          <label for="surgical-other">Can't find the procedure you need?</label>
+          <input type="text" id="surgical-other" placeholder="Type the surgical procedure name">
+        </div>
       </div>
 
       <!-- CONTROL 3: Lab — checklist -->
       <div class="panel" id="panel-lab">
         <div class="checklist" id="lab-checklist"></div>
         <div class="selected-chip" id="lab-chip" style="display:none;"></div>
+        <div class="other-field">
+          <label for="lab-other">Can't find the test you need?</label>
+          <input type="text" id="lab-other" placeholder="Type the lab test name">
+        </div>
       </div>
     </div>
   </div>
@@ -231,12 +257,29 @@
 <section style="padding-top:0;">
   <div class="wrap">
     <div class="card-shell">
-      <div class="step-marker"><div class="num">2</div><h2>Patient &amp; order details</h2></div>
+      <div class="step-marker"><div class="num">2</div><h2>Place of service</h2></div>
+      <div class="select-wrap">
+        <select class="big-select" id="pos-select"></select>
+      </div>
+      <p class="field-hint" id="pos-hint">Automatically filtered to facilities relevant to the selected service type.</p>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0;">
+  <div class="wrap">
+    <div class="card-shell">
+      <div class="step-marker"><div class="num">3</div><h2>Patient &amp; order details</h2></div>
       <div class="form-grid">
         <div class="field"><label>Patient full name</label><input type="text" id="p-name" placeholder="Jane Rivera"></div>
         <div class="field"><label>Date of birth</label><input type="date" id="p-dob"></div>
         <div class="field"><label>Member ID</label><input type="text" id="p-member" placeholder="MBR-00482913"></div>
-        <div class="field"><label>Diagnosis code (ICD-10)</label><input type="text" id="p-icd" placeholder="M54.5"></div>
+        <div class="field">
+          <label>Diagnosis code (ICD-10)</label>
+          <input type="text" id="p-icd" placeholder="M54.5" list="icd10-list" autocomplete="off">
+          <datalist id="icd10-list"></datalist>
+          <p class="icd-name" id="icd-name"></p>
+        </div>
         <div class="field"><label>Ordering provider</label><input type="text" id="p-provider" placeholder="Dr. Alan Chen"></div>
         <div class="field"><label>Provider NPI</label><input type="text" id="p-npi" placeholder="1932847560"></div>
       </div>
@@ -254,7 +297,7 @@
 <section id="response-section">
   <div class="wrap">
     <div class="card-shell">
-      <div class="step-marker"><div class="num">3</div><h2>Coverage requirements response</h2></div>
+      <div class="step-marker"><div class="num">4</div><h2>Coverage requirements response</h2></div>
       <span class="std-tag" style="margin-bottom:18px;display:inline-block;">CRD IG · via CDS Hooks</span>
       <div id="badge-holder"></div>
 
@@ -335,6 +378,52 @@
     ]
   };
 
+  // Local ICD-10 reference table (common codes). This is a static, offline
+  // reference set for demo purposes — not a live connection to CMS/WHO ICD-10 data.
+  const ICD10_DB = {
+    'M54.5':'Low back pain',
+    'M54.2':'Cervicalgia (neck pain)',
+    'M17.11':'Unilateral primary osteoarthritis, right knee',
+    'M17.12':'Unilateral primary osteoarthritis, left knee',
+    'M25.561':'Pain in right knee',
+    'M25.562':'Pain in left knee',
+    'M51.26':'Intervertebral disc displacement, lumbar region',
+    'M75.100':'Rotator cuff tear/rupture, unspecified shoulder, not traumatic',
+    'K80.20':'Calculus of gallbladder without obstruction',
+    'K40.90':'Unilateral inguinal hernia, without obstruction or gangrene',
+    'H25.9':'Unspecified age-related cataract',
+    'R07.9':'Chest pain, unspecified',
+    'R10.9':'Abdominal pain, unspecified',
+    'R51.9':'Headache, unspecified',
+    'Z12.31':'Encounter for screening mammogram',
+    'C50.911':'Malignant neoplasm of unspecified site, right female breast',
+    'E11.9':'Type 2 diabetes mellitus without complications',
+    'E78.5':'Hyperlipidemia, unspecified',
+    'E55.9':'Vitamin D deficiency, unspecified',
+    'Z80.3':'Family history of malignant neoplasm of breast',
+    'T78.40XA':'Allergy, unspecified, initial encounter',
+    'J45.909':'Unspecified asthma, uncomplicated',
+    'I10':'Essential (primary) hypertension'
+  };
+
+  // Place of Service options, filtered per selected service category
+  const PLACE_OF_SERVICE = {
+    imaging: [
+      {code:'POS-11', name:"Provider's Clinic — In-office Imaging"},
+      {code:'POS-22', name:'Radiology Department — Enterprise Hospital'},
+      {code:'POS-24', name:'Outpatient Imaging Center'}
+    ],
+    surgical: [
+      {code:'POS-21', name:'Surgical Department — Enterprise Hospital'},
+      {code:'POS-24', name:'Ambulatory Surgical Center'}
+    ],
+    lab: [
+      {code:'POS-11', name:"Provider's Clinic — In-office Lab"},
+      {code:'POS-22', name:'Laboratory Department — Enterprise Hospital'},
+      {code:'POS-81', name:'Independent Reference Lab'}
+    ]
+  };
+
   const ICONS = {
     'knee-arthroscopy':'<path d="M4 20l7-7M14 6l4 4-8 8-4-4 8-8zM17 3l4 4"/>',
     'spinal-fusion':'<path d="M12 2v20M8 6h8M8 12h8M8 18h8"/>',
@@ -347,11 +436,48 @@
   let activeCat = 'imaging';
   let selectedLabIds = [];
 
+  // Populate ICD-10 datalist for typeahead suggestions
+  const icdList = document.getElementById('icd10-list');
+  Object.keys(ICD10_DB).forEach(code => {
+    const opt = document.createElement('option');
+    opt.value = code; opt.label = ICD10_DB[code];
+    icdList.appendChild(opt);
+  });
+
+  // Look up and display the diagnosis name as the provider types/selects a code
+  const icdInput = document.getElementById('p-icd');
+  const icdNameEl = document.getElementById('icd-name');
+  icdInput.addEventListener('input', () => {
+    const code = icdInput.value.trim().toUpperCase();
+    if(!code){ icdNameEl.textContent = ''; icdNameEl.className = 'icd-name'; return; }
+    const match = ICD10_DB[code];
+    if(match){
+      icdNameEl.textContent = match;
+      icdNameEl.className = 'icd-name found';
+    } else {
+      icdNameEl.textContent = 'Not found in local ICD-10 reference — verify code';
+      icdNameEl.className = 'icd-name not-found';
+    }
+  });
+
+  // Populate Place of Service options for a given category
+  const posSelect = document.getElementById('pos-select');
+  function updatePlaceOfService(cat){
+    posSelect.innerHTML = '';
+    PLACE_OF_SERVICE[cat].forEach(pos => {
+      const opt = document.createElement('option');
+      opt.value = pos.code; opt.textContent = pos.name + ' (' + pos.code + ')';
+      posSelect.appendChild(opt);
+    });
+  }
+  updatePlaceOfService(activeCat);
+
   function switchTab(cat){
     activeCat = cat;
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     document.getElementById('panel-' + cat).classList.add('active');
+    updatePlaceOfService(cat);
   }
 
   // Build imaging dropdown
@@ -397,19 +523,36 @@
     labList.appendChild(row);
   });
 
+  // Generic fallback profile applied to any provider-typed "other" service —
+  // unlisted services default to requiring standard documentation for manual review.
+  function customItem(name){
+    return {
+      id: 'other', name: name, paRequired: true,
+      docs: ['Physician order with clinical notes', 'Diagnosis documentation supporting medical necessity', 'Relevant prior treatment history'],
+      alternatives: [], copay: 20
+    };
+  }
+
   function getSelectedItems(){
     if(activeCat === 'imaging'){
+      const otherText = document.getElementById('imaging-other').value.trim();
+      if(otherText) return [customItem(otherText)];
       const id = imgSelect.value;
       if(!id) return [];
       return [DATA.imaging.find(i => i.id === id)];
     }
     if(activeCat === 'surgical'){
+      const otherText = document.getElementById('surgical-other').value.trim();
+      if(otherText) return [customItem(otherText)];
       const card = document.querySelector('.proc-card.selected');
       if(!card) return [];
       return [DATA.surgical.find(i => i.id === card.dataset.id)];
     }
     if(activeCat === 'lab'){
-      return DATA.lab.filter(i => selectedLabIds.includes(i.id));
+      const items = DATA.lab.filter(i => selectedLabIds.includes(i.id));
+      const otherText = document.getElementById('lab-other').value.trim();
+      if(otherText) items.push(customItem(otherText));
+      return items;
     }
     return [];
   }
@@ -464,10 +607,14 @@
     const footer = document.getElementById('resp-footer');
     if(paRequired){
       // Persist context for the document submission page
+      const icdCode = document.getElementById('p-icd').value.trim().toUpperCase();
+      const posName = posSelect.options[posSelect.selectedIndex] ? posSelect.options[posSelect.selectedIndex].textContent : '';
       sessionStorage.setItem('paSubmission', JSON.stringify({
         serviceNames, category: activeCat, docs, copay,
         patientName: document.getElementById('p-name').value.trim(),
-        memberId: document.getElementById('p-member').value.trim()
+        memberId: document.getElementById('p-member').value.trim(),
+        diagnosis: icdCode + (ICD10_DB[icdCode] ? ' — ' + ICD10_DB[icdCode] : ''),
+        placeOfService: posName
       }));
       footer.innerHTML = `
         <a class="btn-dark" href="submit-documents.html">
