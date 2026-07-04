@@ -3,96 +3,487 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Provider Portal — Interoperability Platform</title>
+<title>Provider Portal — Coverage Requirements Check</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#0A2540; --teal-deep:#0B7C6E; --coral:#FF6B4A;
-    --paper:#FFFFFF; --slate:#5B6B7C; --line:#DCE4E8;
+    --ink:#0A2540; --ink-soft:#16324F; --teal:#0F9D8C; --teal-deep:#0B7C6E;
+    --coral:#FF6B4A; --paper:#FFFFFF; --mist:#EEF3F5; --slate:#5B6B7C; --line:#DCE4E8;
+    --radius:14px; --good:#0B7C6E; --bad:#C1432B;
   }
   *{box-sizing:border-box;}
-  body{
-    margin:0;font-family:'Inter',sans-serif;color:var(--ink);
-    background:var(--paper);
-    min-height:100vh;display:flex;flex-direction:column;
-  }
-  nav{border-bottom:1px solid var(--line);}
-  nav .wrap{
-    max-width:1120px;margin:0 auto;padding:0 32px;height:64px;
-    display:flex;align-items:center;justify-content:space-between;
-  }
-  .brand{
-    font-family:'Fraunces',serif;font-weight:600;font-size:18px;
-    text-decoration:none;color:var(--ink);
-  }
-  .brand span{color:var(--teal-deep);}
-  .back{
-    font-size:14px;color:var(--slate);text-decoration:none;
-    display:inline-flex;align-items:center;gap:6px;
-  }
+  body{margin:0;font-family:'Inter',sans-serif;color:var(--ink);background:var(--paper);line-height:1.55;}
+  h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;margin:0 0 .4em 0;letter-spacing:-0.01em;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{color:inherit;}
+  .wrap{max-width:980px;margin:0 auto;padding:0 32px;}
+  @media (max-width:640px){.wrap{padding:0 20px;}}
+
+  nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px;max-width:980px;}
+  .brand{display:flex;align-items:center;gap:10px;font-family:'Fraunces',serif;font-weight:600;font-size:18px;text-decoration:none;color:var(--ink);}
+  .brand-mark{width:26px;height:26px;border-radius:7px;background:var(--ink);display:inline-flex;align-items:center;justify-content:center;}
+  .brand-mark svg{width:14px;height:14px;}
+  .back{font-size:14px;color:var(--slate);text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
   .back:hover{color:var(--ink);}
-  main{
-    flex:1;display:flex;align-items:center;justify-content:center;
-    padding:64px 32px;
+
+  header.page-head{padding:52px 0 8px;}
+  .tag{font-family:'IBM Plex Mono',monospace;font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--coral);display:block;margin-bottom:14px;}
+  header.page-head h1{font-size:clamp(28px,4vw,38px);max-width:640px;}
+  header.page-head p{color:var(--slate);font-size:16px;max-width:600px;margin:14px 0 0;}
+
+  section{padding:36px 0;}
+  .card-shell{background:#fff;border:1px solid var(--line);border-radius:20px;padding:32px;}
+  @media (max-width:640px){.card-shell{padding:22px;}}
+
+  /* ---- step marker ---- */
+  .step-marker{display:flex;align-items:center;gap:10px;margin-bottom:22px;}
+  .step-marker .num{width:26px;height:26px;border-radius:50%;background:var(--ink);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .step-marker h2{font-size:19px;margin:0;}
+
+  /* ---- category tabs ---- */
+  .tabs{display:flex;gap:10px;margin-bottom:26px;flex-wrap:wrap;}
+  .tab-btn{
+    border:1px solid var(--line);background:#fff;color:var(--slate);
+    padding:11px 18px;border-radius:10px;font-size:14px;font-weight:600;
+    cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .15s;
   }
-  .panel{
-    max-width:520px;text-align:center;
+  .tab-btn svg{width:16px;height:16px;stroke:var(--slate);}
+  .tab-btn.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .tab-btn.active svg{stroke:#fff;}
+  .tab-btn:hover:not(.active){border-color:var(--ink);color:var(--ink);}
+  .tab-btn:hover:not(.active) svg{stroke:var(--ink);}
+
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  /* ---- control 1: imaging dropdown ---- */
+  .select-wrap{position:relative;}
+  select.big-select{
+    width:100%;appearance:none;-webkit-appearance:none;
+    font-family:'Inter',sans-serif;font-size:15px;font-weight:500;color:var(--ink);
+    padding:16px 44px 16px 16px;border-radius:10px;border:1.5px solid var(--line);
+    background:#fff;cursor:pointer;
   }
-  .tag{
-    font-family:'IBM Plex Mono',monospace;font-size:12px;
-    text-transform:uppercase;letter-spacing:.12em;color:var(--coral);
-    display:block;margin-bottom:18px;
+  select.big-select:focus{outline:none;border-color:var(--teal-deep);}
+  .select-wrap::after{
+    content:'';position:absolute;right:18px;top:50%;transform:translateY(-60%) rotate(45deg);
+    width:8px;height:8px;border-right:2px solid var(--slate);border-bottom:2px solid var(--slate);
+    pointer-events:none;
   }
-  h1{
-    font-family:'Fraunces',serif;font-weight:600;font-size:clamp(26px,4vw,36px);
-    margin:0 0 16px;
+  .field-hint{font-size:13px;color:var(--slate);margin-top:10px;}
+
+  /* ---- control 2: surgical card grid ---- */
+  .proc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  @media (max-width:760px){.proc-grid{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:480px){.proc-grid{grid-template-columns:1fr;}}
+  .proc-card{
+    text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:12px;
+    padding:16px 14px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;
   }
-  p{color:var(--slate);font-size:16px;line-height:1.6;margin:0 0 32px;}
-  .icon{
-    width:64px;height:64px;border-radius:50%;
-    background:rgba(15,157,140,.10);
-    display:flex;align-items:center;justify-content:center;
-    margin:0 auto 28px;
+  .proc-card .pc-icon{width:30px;height:30px;border-radius:8px;background:var(--mist);display:flex;align-items:center;justify-content:center;margin-bottom:10px;}
+  .proc-card .pc-icon svg{width:16px;height:16px;stroke:var(--ink-soft);}
+  .proc-card .pc-name{font-size:14px;font-weight:700;color:var(--ink);display:block;}
+  .proc-card:hover{border-color:var(--teal-deep);}
+  .proc-card.selected{border-color:var(--teal-deep);background:rgba(15,157,140,.06);}
+  .proc-card.selected .pc-icon{background:var(--teal-deep);}
+  .proc-card.selected .pc-icon svg{stroke:#fff;}
+
+  /* ---- control 3: lab checklist ---- */
+  .checklist{border:1.5px solid var(--line);border-radius:12px;overflow:hidden;}
+  .check-row{display:flex;align-items:center;gap:14px;padding:14px 16px;border-top:1px solid var(--line);cursor:pointer;}
+  .check-row:first-child{border-top:none;}
+  .check-row:hover{background:var(--mist);}
+  .check-row input{width:18px;height:18px;accent-color:var(--teal-deep);flex-shrink:0;}
+  .check-row span{font-size:14.5px;font-weight:600;color:var(--ink);}
+  .selected-chip{
+    display:inline-flex;align-items:center;gap:6px;margin-top:14px;
+    font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--teal-deep);
+    background:rgba(15,157,140,.09);padding:6px 12px;border-radius:100px;
   }
-  .icon svg{width:30px;height:30px;stroke:var(--teal-deep);}
-  .btn{
-    background:var(--ink);color:#fff;text-decoration:none;
-    padding:13px 22px;border-radius:9px;font-weight:600;font-size:14.5px;
+
+  /* ---- patient details form ---- */
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  @media (max-width:640px){.form-grid{grid-template-columns:1fr;}}
+  .field label{display:block;font-size:13px;font-weight:600;color:var(--ink-soft);margin-bottom:7px;}
+  .field input{
+    width:100%;padding:12px 14px;border-radius:9px;border:1.5px solid var(--line);
+    font-family:'Inter',sans-serif;font-size:14.5px;color:var(--ink);
+  }
+  .field input:focus{outline:none;border-color:var(--teal-deep);}
+  .field input.invalid{border-color:var(--bad);}
+  .err-msg{font-size:13px;color:var(--bad);margin-top:14px;display:none;}
+  .err-msg.show{display:block;}
+
+  /* ---- submit button ---- */
+  .btn-primary{
+    background:var(--coral);color:#fff;padding:15px 26px;border-radius:9px;border:none;
+    text-decoration:none;font-weight:700;font-size:15px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:8px;
+    box-shadow:0 8px 20px -8px rgba(255,107,74,.5);transition:transform .15s;
+  }
+  .btn-primary:hover{transform:translateY(-1px);}
+  .btn-dark{
+    background:var(--ink);color:#fff;padding:15px 26px;border-radius:9px;border:none;
+    text-decoration:none;font-weight:700;font-size:15px;cursor:pointer;
     display:inline-flex;align-items:center;gap:8px;
   }
-  .btn:hover{background:var(--teal-deep);}
-  footer{padding:28px 32px;text-align:center;}
-  footer p{font-size:13px;color:var(--slate);margin:0;}
+  .btn-dark:hover{background:var(--teal-deep);}
+
+  /* ---- response section ---- */
+  #response-section{display:none;}
+  .badge{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500;
+    padding:8px 16px;border-radius:100px;margin-bottom:20px;
+  }
+  .badge.required{background:rgba(193,67,43,.10);color:var(--bad);border:1px solid rgba(193,67,43,.3);}
+  .badge.not-required{background:rgba(15,157,140,.10);color:var(--teal-deep);border:1px solid rgba(15,157,140,.3);}
+  .resp-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:22px;}
+  @media (max-width:700px){.resp-grid{grid-template-columns:1fr;}}
+  .resp-block h3{font-size:15px;font-family:'Inter',sans-serif;font-weight:700;margin-bottom:12px;}
+  .doc-list{margin:0;padding:0;list-style:none;}
+  .doc-list li{
+    display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--ink-soft);
+    padding:9px 0;border-top:1px solid var(--line);
+  }
+  .doc-list li:first-child{border-top:none;}
+  .doc-list li svg{width:15px;height:15px;stroke:var(--teal-deep);flex-shrink:0;margin-top:2px;}
+  .alt-list li svg{stroke:var(--coral);}
+  .empty-note{font-size:14px;color:var(--slate);font-style:italic;}
+  .resp-footer{margin-top:28px;padding-top:24px;border-top:1px solid var(--line);display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+  .std-tag{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--teal-deep);
+    background:rgba(15,157,140,.08);padding:3px 9px;border-radius:6px;
+  }
+
+  footer{padding:40px 0 60px;border-top:1px solid var(--line);margin-top:20px;}
+  footer .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;max-width:980px;}
+  footer p{font-size:13.5px;color:var(--slate);margin:0;}
 </style>
 </head>
 <body>
 
 <nav>
   <div class="wrap">
-    <a class="brand" href="index.html">Interop<span>/</span>PA</a>
+    <a class="brand" href="index.html">
+      <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M4 12h4l2-8 4 16 2-8h4"/></svg></span>
+      Interop<span style="color:var(--teal-deep)">/</span>PA
+    </a>
     <a class="back" href="index.html">← Back to overview</a>
   </div>
 </nav>
 
-<main>
-  <div class="panel">
-    <div class="icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 2a4 4 0 100 8 4 4 0 000-8zM4 22a8 8 0 0116 0"/></svg>
-    </div>
-    <span class="tag">Provider workflow</span>
-    <h1>The provider workflow starts here.</h1>
-    <p>This is where a clinician will initiate a treatment order, trigger a real-time coverage check (CRD), and complete documentation (DTR) — all without leaving their EHR. The workflow itself is coming next.</p>
-    <a class="btn" href="index.html">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
-      Back to project overview
-    </a>
+<header class="page-head">
+  <div class="wrap">
+    <span class="tag">Provider workflow · Step 1</span>
+    <h1>Start a prior authorization request</h1>
+    <p>Select a service, complete the patient details, and run a real-time coverage requirements check — before anything is scheduled.</p>
   </div>
-</main>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="card-shell">
+      <div class="step-marker"><div class="num">1</div><h2>Select the requested service</h2></div>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-cat="imaging" onclick="switchTab('imaging')">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg>
+          Imaging exams
+        </button>
+        <button class="tab-btn" data-cat="surgical" onclick="switchTab('surgical')">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 20l7-7M14 6l4 4-8 8-4-4 8-8zM17 3l4 4"/></svg>
+          Surgical procedures
+        </button>
+        <button class="tab-btn" data-cat="lab" onclick="switchTab('lab')">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 2v6L4 19a1 1 0 001 2h14a1 1 0 001-2l-5-11V2M9 2h6"/></svg>
+          Lab tests
+        </button>
+      </div>
+
+      <!-- CONTROL 1: Imaging — dropdown -->
+      <div class="panel active" id="panel-imaging">
+        <div class="select-wrap">
+          <select class="big-select" id="imaging-select">
+            <option value="">Select an imaging exam…</option>
+          </select>
+        </div>
+        <p class="field-hint">Choose the single imaging exam being ordered for this patient.</p>
+      </div>
+
+      <!-- CONTROL 2: Surgical — card grid -->
+      <div class="panel" id="panel-surgical">
+        <div class="proc-grid" id="surgical-grid"></div>
+        <p class="field-hint">Click a card to select the surgical procedure being planned.</p>
+      </div>
+
+      <!-- CONTROL 3: Lab — checklist -->
+      <div class="panel" id="panel-lab">
+        <div class="checklist" id="lab-checklist"></div>
+        <div class="selected-chip" id="lab-chip" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0;">
+  <div class="wrap">
+    <div class="card-shell">
+      <div class="step-marker"><div class="num">2</div><h2>Patient &amp; order details</h2></div>
+      <div class="form-grid">
+        <div class="field"><label>Patient full name</label><input type="text" id="p-name" placeholder="Jane Rivera"></div>
+        <div class="field"><label>Date of birth</label><input type="date" id="p-dob"></div>
+        <div class="field"><label>Member ID</label><input type="text" id="p-member" placeholder="MBR-00482913"></div>
+        <div class="field"><label>Diagnosis code (ICD-10)</label><input type="text" id="p-icd" placeholder="M54.5"></div>
+        <div class="field"><label>Ordering provider</label><input type="text" id="p-provider" placeholder="Dr. Alan Chen"></div>
+        <div class="field"><label>Provider NPI</label><input type="text" id="p-npi" placeholder="1932847560"></div>
+      </div>
+      <p class="err-msg" id="form-error">Please complete all patient details and select a service before running the coverage check.</p>
+      <div style="margin-top:26px;">
+        <button class="btn-primary" onclick="runCoverageCheck()">
+          Check coverage requirements
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="response-section">
+  <div class="wrap">
+    <div class="card-shell">
+      <div class="step-marker"><div class="num">3</div><h2>Coverage requirements response</h2></div>
+      <span class="std-tag" style="margin-bottom:18px;display:inline-block;">CRD IG · via CDS Hooks</span>
+      <div id="badge-holder"></div>
+
+      <div class="resp-grid">
+        <div class="resp-block">
+          <h3>Documentation needed for PA review</h3>
+          <ul class="doc-list" id="doc-list"></ul>
+        </div>
+        <div class="resp-block">
+          <h3>Alternative treatment options</h3>
+          <ul class="doc-list alt-list" id="alt-list"></ul>
+        </div>
+      </div>
+
+      <div class="resp-footer" id="resp-footer"></div>
+    </div>
+  </div>
+</section>
 
 <footer>
-  <p>Interoperability Platform Strategy for Health Plans</p>
+  <div class="wrap">
+    <p>Interoperability Platform Strategy for Health Plans</p>
+    <div style="display:flex;gap:20px;">
+      <a href="https://github.com/Arindam-dc/AI_Assisted_Prior_Authorization">View on GitHub</a>
+      <a href="https://github.com/Arindam-dc/AI_Assisted_Prior_Authorization/blob/main/LICENSE">View license</a>
+    </div>
+  </div>
 </footer>
+
+<script>
+  // ---------------- Mock payer / coverage data ----------------
+  const DATA = {
+    imaging: [
+      {id:'mri-brain', name:'MRI Brain (without contrast)', paRequired:true,
+        docs:['Physician order with clinical notes','ICD-10 diagnosis documentation','Prior conservative treatment records'],
+        alternatives:['CT Brain (lower-cost alternative)'], copay:20},
+      {id:'mri-spine', name:'MRI Lumbar Spine', paRequired:true,
+        docs:['Clinical notes documenting 6+ weeks conservative therapy','Physical exam findings','Imaging order'],
+        alternatives:['X-Ray Lumbar Spine'], copay:20},
+      {id:'ct-abdomen', name:'CT Abdomen & Pelvis (with contrast)', paRequired:true,
+        docs:['Clinical notes supporting medical necessity','Recent creatinine / renal function labs','Diagnosis codes'],
+        alternatives:['Ultrasound Abdomen'], copay:15},
+      {id:'pet-scan', name:'PET Scan (Oncologic)', paRequired:true,
+        docs:['Oncology treatment plan','Pathology report','Prior imaging results'],
+        alternatives:[], copay:25},
+      {id:'us-abdomen', name:'Ultrasound Abdomen', paRequired:false, docs:[], alternatives:[], copay:10},
+      {id:'xray-chest', name:'X-Ray Chest', paRequired:false, docs:[], alternatives:[], copay:5}
+    ],
+    surgical: [
+      {id:'knee-arthroscopy', name:'Knee Arthroscopy', paRequired:true,
+        docs:['Conservative treatment history (PT / injections)','MRI results','Surgeon\'s operative plan'],
+        alternatives:['Continued physical therapy'], copay:20},
+      {id:'spinal-fusion', name:'Lumbar Spinal Fusion', paRequired:true,
+        docs:['6+ months conservative care documentation','MRI / CT imaging results','Surgical necessity letter','Second opinion consult'],
+        alternatives:['Epidural steroid injection series'], copay:30},
+      {id:'cataract-surgery', name:'Cataract Surgery (Phacoemulsification)', paRequired:true,
+        docs:['Visual acuity test results','Ophthalmologic exam notes'],
+        alternatives:[], copay:15},
+      {id:'hernia-repair', name:'Inguinal Hernia Repair', paRequired:false, docs:[], alternatives:[], copay:15},
+      {id:'cholecystectomy', name:'Laparoscopic Cholecystectomy', paRequired:true,
+        docs:['Ultrasound confirming gallstones','Symptom history','Surgeon\'s clinical notes'],
+        alternatives:[], copay:20},
+      {id:'rotator-cuff', name:'Rotator Cuff Repair', paRequired:true,
+        docs:['MRI shoulder results','Physical therapy records (min. 6 weeks)','Surgeon\'s clinical justification'],
+        alternatives:['Corticosteroid injection'], copay:25}
+    ],
+    lab: [
+      {id:'genetic-panel', name:'Hereditary Cancer Genetic Panel', paRequired:true,
+        docs:['Family history documentation','Genetic counseling note','Physician order'], alternatives:[], copay:10},
+      {id:'cmp', name:'Comprehensive Metabolic Panel', paRequired:false, docs:[], alternatives:[], copay:0},
+      {id:'lipid-panel', name:'Lipid Panel', paRequired:false, docs:[], alternatives:[], copay:0},
+      {id:'hba1c', name:'HbA1c', paRequired:false, docs:[], alternatives:[], copay:0},
+      {id:'vitamin-d', name:'Vitamin D, 25-Hydroxy', paRequired:true,
+        docs:['Clinical justification for testing','Diagnosis code showing deficiency risk'], alternatives:[], copay:5},
+      {id:'allergy-panel', name:'Allergy Panel (IgE, Extended)', paRequired:true,
+        docs:['Symptom history','Referral from primary care','Prior treatment attempts'],
+        alternatives:['Single-allergen targeted testing'], copay:15}
+    ]
+  };
+
+  const ICONS = {
+    'knee-arthroscopy':'<path d="M4 20l7-7M14 6l4 4-8 8-4-4 8-8zM17 3l4 4"/>',
+    'spinal-fusion':'<path d="M12 2v20M8 6h8M8 12h8M8 18h8"/>',
+    'cataract-surgery':'<circle cx="12" cy="12" r="4"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/>',
+    'hernia-repair':'<path d="M12 2a5 5 0 015 5c0 3-5 8-5 8s-5-5-5-8a5 5 0 015-5z"/>',
+    'cholecystectomy':'<path d="M6 4h12v8a6 6 0 01-12 0V4z"/>',
+    'rotator-cuff':'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/>'
+  };
+
+  let activeCat = 'imaging';
+  let selectedLabIds = [];
+
+  function switchTab(cat){
+    activeCat = cat;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + cat).classList.add('active');
+  }
+
+  // Build imaging dropdown
+  const imgSelect = document.getElementById('imaging-select');
+  DATA.imaging.forEach(item => {
+    const opt = document.createElement('option');
+    opt.value = item.id; opt.textContent = item.name;
+    imgSelect.appendChild(opt);
+  });
+
+  // Build surgical card grid
+  const surgGrid = document.getElementById('surgical-grid');
+  DATA.surgical.forEach(item => {
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'proc-card';
+    card.dataset.id = item.id;
+    card.innerHTML = `<div class="pc-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2">${ICONS[item.id] || '<circle cx="12" cy="12" r="8"/>'}</svg></div><span class="pc-name">${item.name}</span>`;
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.proc-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+    });
+    surgGrid.appendChild(card);
+  });
+
+  // Build lab checklist
+  const labList = document.getElementById('lab-checklist');
+  DATA.lab.forEach(item => {
+    const row = document.createElement('label');
+    row.className = 'check-row';
+    row.innerHTML = `<input type="checkbox" value="${item.id}"> <span>${item.name}</span>`;
+    row.querySelector('input').addEventListener('change', e => {
+      if(e.target.checked){ selectedLabIds.push(item.id); }
+      else{ selectedLabIds = selectedLabIds.filter(id => id !== item.id); }
+      const chip = document.getElementById('lab-chip');
+      if(selectedLabIds.length > 0){
+        chip.style.display = 'inline-flex';
+        chip.textContent = selectedLabIds.length + ' test' + (selectedLabIds.length > 1 ? 's' : '') + ' selected';
+      } else {
+        chip.style.display = 'none';
+      }
+    });
+    labList.appendChild(row);
+  });
+
+  function getSelectedItems(){
+    if(activeCat === 'imaging'){
+      const id = imgSelect.value;
+      if(!id) return [];
+      return [DATA.imaging.find(i => i.id === id)];
+    }
+    if(activeCat === 'surgical'){
+      const card = document.querySelector('.proc-card.selected');
+      if(!card) return [];
+      return [DATA.surgical.find(i => i.id === card.dataset.id)];
+    }
+    if(activeCat === 'lab'){
+      return DATA.lab.filter(i => selectedLabIds.includes(i.id));
+    }
+    return [];
+  }
+
+  function validatePatientFields(){
+    const ids = ['p-name','p-dob','p-member','p-icd','p-provider','p-npi'];
+    let ok = true;
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if(!el.value.trim()){ el.classList.add('invalid'); ok = false; }
+      else{ el.classList.remove('invalid'); }
+    });
+    return ok;
+  }
+
+  function runCoverageCheck(){
+    const items = getSelectedItems();
+    const patientOk = validatePatientFields();
+    const errEl = document.getElementById('form-error');
+
+    if(items.length === 0 || !patientOk){
+      errEl.classList.add('show');
+      return;
+    }
+    errEl.classList.remove('show');
+
+    const paRequired = items.some(i => i.paRequired);
+    const docs = [...new Set(items.flatMap(i => i.docs))];
+    const alternatives = [...new Set(items.flatMap(i => i.alternatives))];
+    const copay = Math.max(...items.map(i => i.copay));
+    const serviceNames = items.map(i => i.name).join(', ');
+
+    // Render badge
+    const badgeHolder = document.getElementById('badge-holder');
+    badgeHolder.innerHTML = paRequired
+      ? `<span class="badge required"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg> Prior authorization required</span>`
+      : `<span class="badge not-required"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 13l4 4L19 7"/></svg> Prior authorization not required</span>`;
+
+    // Render docs
+    const docList = document.getElementById('doc-list');
+    docList.innerHTML = docs.length
+      ? docs.map(d => `<li><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>${d}</li>`).join('')
+      : `<li class="empty-note" style="border:none;padding:0;">No additional documentation required for this service.</li>`;
+
+    // Render alternatives
+    const altList = document.getElementById('alt-list');
+    altList.innerHTML = alternatives.length
+      ? alternatives.map(a => `<li><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>${a}</li>`).join('')
+      : `<li class="empty-note" style="border:none;padding:0;">No alternative treatment options suggested.</li>`;
+
+    // Footer / next step
+    const footer = document.getElementById('resp-footer');
+    if(paRequired){
+      // Persist context for the document submission page
+      sessionStorage.setItem('paSubmission', JSON.stringify({
+        serviceNames, category: activeCat, docs, copay,
+        patientName: document.getElementById('p-name').value.trim(),
+        memberId: document.getElementById('p-member').value.trim()
+      }));
+      footer.innerHTML = `
+        <a class="btn-dark" href="submit-documents.html">
+          Submit Documents
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <span class="field-hint" style="margin:0;">Upload the documentation above for detailed PA review by the payer.</span>`;
+    } else {
+      sessionStorage.removeItem('paSubmission');
+      footer.innerHTML = `<span class="field-hint" style="margin:0;">No further action needed — you may proceed directly to scheduling.</span>`;
+    }
+
+    document.getElementById('response-section').style.display = 'block';
+    document.getElementById('response-section').scrollIntoView({behavior:'smooth', block:'start'});
+  }
+</script>
 
 </body>
 </html>

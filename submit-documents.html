@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Submit Supporting Documents — Provider Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0A2540; --ink-soft:#16324F; --teal:#0F9D8C; --teal-deep:#0B7C6E;
+    --coral:#FF6B4A; --paper:#FFFFFF; --mist:#EEF3F5; --slate:#5B6B7C; --line:#DCE4E8;
+    --radius:14px; --good:#0B7C6E;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Inter',sans-serif;color:var(--ink);background:var(--paper);line-height:1.55;}
+  h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;margin:0 0 .4em 0;letter-spacing:-0.01em;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{color:inherit;}
+  .wrap{max-width:820px;margin:0 auto;padding:0 32px;}
+  @media (max-width:640px){.wrap{padding:0 20px;}}
+
+  nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px;max-width:820px;}
+  .brand{display:flex;align-items:center;gap:10px;font-family:'Fraunces',serif;font-weight:600;font-size:18px;text-decoration:none;color:var(--ink);}
+  .brand-mark{width:26px;height:26px;border-radius:7px;background:var(--ink);display:inline-flex;align-items:center;justify-content:center;}
+  .brand-mark svg{width:14px;height:14px;}
+  .back{font-size:14px;color:var(--slate);text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+  .back:hover{color:var(--ink);}
+
+  header.page-head{padding:52px 0 8px;}
+  .tag{font-family:'IBM Plex Mono',monospace;font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--coral);display:block;margin-bottom:14px;}
+  header.page-head h1{font-size:clamp(26px,4vw,34px);}
+  header.page-head p{color:var(--slate);font-size:15.5px;margin:14px 0 0;max-width:560px;}
+
+  section{padding:36px 0;}
+  .card-shell{background:#fff;border:1px solid var(--line);border-radius:20px;padding:32px;}
+  @media (max-width:640px){.card-shell{padding:22px;}}
+
+  .context-bar{
+    display:flex;flex-wrap:wrap;gap:10px 28px;
+    background:var(--mist);border-radius:12px;padding:18px 20px;margin-bottom:28px;
+  }
+  .context-item .label{font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--slate);display:block;margin-bottom:4px;}
+  .context-item .value{font-size:14.5px;font-weight:600;color:var(--ink);}
+  .warn-note{
+    display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--slate);
+    background:rgba(255,107,74,.06);border:1px solid rgba(255,107,74,.2);border-radius:10px;padding:14px 16px;margin-bottom:26px;
+  }
+  .warn-note svg{width:16px;height:16px;stroke:var(--coral);flex-shrink:0;margin-top:2px;}
+
+  .dropzone{
+    border:2px dashed var(--line);border-radius:14px;padding:40px 20px;text-align:center;
+    cursor:pointer;transition:border-color .15s, background .15s;
+  }
+  .dropzone:hover, .dropzone.drag{border-color:var(--teal-deep);background:rgba(15,157,140,.04);}
+  .dropzone .dz-icon{
+    width:52px;height:52px;border-radius:50%;background:var(--mist);margin:0 auto 16px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .dropzone .dz-icon svg{width:24px;height:24px;stroke:var(--teal-deep);}
+  .dropzone p{margin:0;font-size:14.5px;color:var(--slate);}
+  .dropzone p strong{color:var(--ink);}
+  #file-input{display:none;}
+
+  .file-list{margin-top:20px;display:flex;flex-direction:column;gap:10px;}
+  .file-chip{
+    display:flex;align-items:center;justify-content:space-between;
+    background:var(--mist);border-radius:9px;padding:11px 14px;font-size:14px;
+  }
+  .file-chip .fc-left{display:flex;align-items:center;gap:10px;}
+  .file-chip svg.doc-icon{width:16px;height:16px;stroke:var(--ink-soft);flex-shrink:0;}
+  .file-chip .fc-name{font-weight:600;color:var(--ink);}
+  .file-chip .fc-size{color:var(--slate);font-size:12.5px;font-family:'IBM Plex Mono',monospace;}
+  .file-chip button{
+    border:none;background:transparent;cursor:pointer;color:var(--slate);
+    width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:6px;
+  }
+  .file-chip button:hover{background:#fff;color:var(--coral);}
+
+  .err-msg{font-size:13px;color:#C1432B;margin-top:16px;display:none;}
+  .err-msg.show{display:block;}
+
+  .btn-primary{
+    background:var(--coral);color:#fff;padding:15px 26px;border-radius:9px;border:none;
+    text-decoration:none;font-weight:700;font-size:15px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:8px;
+    box-shadow:0 8px 20px -8px rgba(255,107,74,.5);transition:transform .15s;
+  }
+  .btn-primary:hover{transform:translateY(-1px);}
+  .btn-dark{
+    background:var(--ink);color:#fff;padding:14px 24px;border-radius:9px;border:none;
+    text-decoration:none;font-weight:700;font-size:14.5px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn-dark:hover{background:var(--teal-deep);}
+
+  #upload-form-section{}
+  #approval-section{display:none;}
+  .approval-icon{
+    width:64px;height:64px;border-radius:50%;background:rgba(15,157,140,.10);
+    display:flex;align-items:center;justify-content:center;margin-bottom:20px;
+  }
+  .approval-icon svg{width:30px;height:30px;stroke:var(--teal-deep);}
+  #approval-section h2{font-size:24px;margin-bottom:6px;}
+  #approval-section .sub{color:var(--slate);font-size:15px;margin-bottom:28px;}
+  .approval-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:10px;}
+  @media (max-width:560px){.approval-grid{grid-template-columns:1fr;}}
+  .approval-stat{background:var(--mist);border-radius:12px;padding:18px 20px;}
+  .approval-stat .label{font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--slate);display:block;margin-bottom:8px;}
+  .approval-stat .value{font-size:20px;font-weight:700;font-family:'Fraunces',serif;color:var(--ink);}
+  .approval-stat.highlight{background:rgba(255,107,74,.08);border:1px solid rgba(255,107,74,.25);}
+  .approval-stat.highlight .value{color:var(--coral);}
+  .approval-stat.good{background:rgba(15,157,140,.08);border:1px solid rgba(15,157,140,.25);}
+  .approval-stat.good .value{color:var(--teal-deep);}
+
+  footer{padding:40px 0 60px;border-top:1px solid var(--line);margin-top:20px;}
+  footer .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;max-width:820px;}
+  footer p{font-size:13.5px;color:var(--slate);margin:0;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M4 12h4l2-8 4 16 2-8h4"/></svg></span>
+      Interop<span style="color:var(--teal-deep)">/</span>PA
+    </a>
+    <a class="back" href="provider-portal.html">← Back to Provider Portal</a>
+  </div>
+</nav>
+
+<header class="page-head">
+  <div class="wrap">
+    <span class="tag">Provider workflow · Step 4</span>
+    <h1>Submit supporting documents</h1>
+    <p>Upload the documentation requested by the payer for a detailed prior authorization review.</p>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="card-shell">
+
+      <div id="upload-form-section">
+        <div class="context-bar" id="context-bar"></div>
+
+        <div class="warn-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span>This is a demo environment. Uploaded files are not stored, transmitted, or validated in any way — attach any file to proceed.</span>
+        </div>
+
+        <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
+          <div class="dz-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg></div>
+          <p><strong>Click to upload</strong> or drag and drop files here</p>
+        </div>
+        <input type="file" id="file-input" multiple>
+
+        <div class="file-list" id="file-list"></div>
+        <p class="err-msg" id="upload-error">Please attach at least one supporting document before submitting.</p>
+
+        <div style="margin-top:26px;">
+          <button class="btn-primary" onclick="submitDocuments()">
+            Submit
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div id="approval-section">
+        <div class="approval-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.2"><path d="M5 13l4 4L19 7"/></svg></div>
+        <h2>Documents accepted</h2>
+        <p class="sub">Prior authorization has been approved based on the submitted documentation.</p>
+
+        <div class="approval-grid">
+          <div class="approval-stat good">
+            <span class="label">Status</span>
+            <span class="value">PA Approved</span>
+          </div>
+          <div class="approval-stat">
+            <span class="label">Authorization #</span>
+            <span class="value" id="auth-number">—</span>
+          </div>
+          <div class="approval-stat highlight">
+            <span class="label">Patient copay</span>
+            <span class="value" id="copay-value">—</span>
+          </div>
+          <div class="approval-stat">
+            <span class="label">Service</span>
+            <span class="value" id="service-value" style="font-size:15px;">—</span>
+          </div>
+        </div>
+
+        <div style="margin-top:28px;">
+          <a class="btn-dark" href="provider-portal.html">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+            Return to Provider Portal
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Interoperability Platform Strategy for Health Plans</p>
+    <div style="display:flex;gap:20px;">
+      <a href="https://github.com/Arindam-dc/AI_Assisted_Prior_Authorization">View on GitHub</a>
+      <a href="https://github.com/Arindam-dc/AI_Assisted_Prior_Authorization/blob/main/LICENSE">View license</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const submission = JSON.parse(sessionStorage.getItem('paSubmission') || 'null');
+  const contextBar = document.getElementById('context-bar');
+
+  if(submission){
+    contextBar.innerHTML = `
+      <div class="context-item"><span class="label">Patient</span><span class="value">${submission.patientName || '—'}</span></div>
+      <div class="context-item"><span class="label">Member ID</span><span class="value">${submission.memberId || '—'}</span></div>
+      <div class="context-item"><span class="label">Service requested</span><span class="value">${submission.serviceNames || '—'}</span></div>
+      <div class="context-item"><span class="label">Documents required</span><span class="value">${(submission.docs || []).length}</span></div>
+    `;
+  } else {
+    contextBar.innerHTML = `<div class="context-item"><span class="label">Notice</span><span class="value">No active submission found — start a request from the Provider Portal.</span></div>`;
+  }
+
+  let files = [];
+
+  function renderFiles(){
+    const list = document.getElementById('file-list');
+    list.innerHTML = files.map((f, idx) => `
+      <div class="file-chip">
+        <div class="fc-left">
+          <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M7 3h7l5 5v13a1 1 0 01-1 1H7a1 1 0 01-1-1V4a1 1 0 011-1z"/><path d="M14 3v5h5"/></svg>
+          <span class="fc-name">${f.name}</span>
+          <span class="fc-size">${(f.size/1024).toFixed(0)} KB</span>
+        </div>
+        <button onclick="removeFile(${idx})" aria-label="Remove file">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M6 18L18 6"/></svg>
+        </button>
+      </div>
+    `).join('');
+  }
+
+  function removeFile(idx){
+    files.splice(idx, 1);
+    renderFiles();
+  }
+
+  document.getElementById('file-input').addEventListener('change', e => {
+    files = files.concat(Array.from(e.target.files));
+    renderFiles();
+    document.getElementById('upload-error').classList.remove('show');
+  });
+
+  const dz = document.getElementById('dropzone');
+  ['dragover','dragenter'].forEach(evt => dz.addEventListener(evt, e => { e.preventDefault(); dz.classList.add('drag'); }));
+  ['dragleave','drop'].forEach(evt => dz.addEventListener(evt, e => { e.preventDefault(); dz.classList.remove('drag'); }));
+  dz.addEventListener('drop', e => {
+    files = files.concat(Array.from(e.dataTransfer.files));
+    renderFiles();
+    document.getElementById('upload-error').classList.remove('show');
+  });
+
+  function generateAuthNumber(){
+    const rand = Math.random().toString(36).substring(2,7).toUpperCase();
+    return 'PA-' + new Date().getFullYear() + '-' + rand;
+  }
+
+  function submitDocuments(){
+    if(files.length === 0){
+      document.getElementById('upload-error').classList.add('show');
+      return;
+    }
+    document.getElementById('auth-number').textContent = generateAuthNumber();
+    document.getElementById('copay-value').textContent = (submission ? submission.copay : 20) + '% of allowed amount';
+    document.getElementById('service-value').textContent = submission ? submission.serviceNames : '—';
+
+    document.getElementById('upload-form-section').style.display = 'none';
+    document.getElementById('approval-section').style.display = 'block';
+    document.getElementById('approval-section').scrollIntoView({behavior:'smooth', block:'start'});
+  }
+</script>
+
+</body>
+</html>
