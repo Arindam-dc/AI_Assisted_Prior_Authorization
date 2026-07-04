@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Provider Portal — Interoperability Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0A2540; --teal-deep:#0B7C6E; --coral:#FF6B4A;
+    --paper:#FFFFFF; --slate:#5B6B7C; --line:#DCE4E8;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;font-family:'Inter',sans-serif;color:var(--ink);
+    background:var(--paper);
+    min-height:100vh;display:flex;flex-direction:column;
+  }
+  nav{border-bottom:1px solid var(--line);}
+  nav .wrap{
+    max-width:1120px;margin:0 auto;padding:0 32px;height:64px;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .brand{
+    font-family:'Fraunces',serif;font-weight:600;font-size:18px;
+    text-decoration:none;color:var(--ink);
+  }
+  .brand span{color:var(--teal-deep);}
+  .back{
+    font-size:14px;color:var(--slate);text-decoration:none;
+    display:inline-flex;align-items:center;gap:6px;
+  }
+  .back:hover{color:var(--ink);}
+  main{
+    flex:1;display:flex;align-items:center;justify-content:center;
+    padding:64px 32px;
+  }
+  .panel{
+    max-width:520px;text-align:center;
+  }
+  .tag{
+    font-family:'IBM Plex Mono',monospace;font-size:12px;
+    text-transform:uppercase;letter-spacing:.12em;color:var(--coral);
+    display:block;margin-bottom:18px;
+  }
+  h1{
+    font-family:'Fraunces',serif;font-weight:600;font-size:clamp(26px,4vw,36px);
+    margin:0 0 16px;
+  }
+  p{color:var(--slate);font-size:16px;line-height:1.6;margin:0 0 32px;}
+  .icon{
+    width:64px;height:64px;border-radius:50%;
+    background:rgba(15,157,140,.10);
+    display:flex;align-items:center;justify-content:center;
+    margin:0 auto 28px;
+  }
+  .icon svg{width:30px;height:30px;stroke:var(--teal-deep);}
+  .btn{
+    background:var(--ink);color:#fff;text-decoration:none;
+    padding:13px 22px;border-radius:9px;font-weight:600;font-size:14.5px;
+    display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn:hover{background:var(--teal-deep);}
+  footer{padding:28px 32px;text-align:center;}
+  footer p{font-size:13px;color:var(--slate);margin:0;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="index.html">Interop<span>/</span>PA</a>
+    <a class="back" href="index.html">← Back to overview</a>
+  </div>
+</nav>
+
+<main>
+  <div class="panel">
+    <div class="icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 2a4 4 0 100 8 4 4 0 000-8zM4 22a8 8 0 0116 0"/></svg>
+    </div>
+    <span class="tag">Provider workflow</span>
+    <h1>The provider workflow starts here.</h1>
+    <p>This is where a clinician will initiate a treatment order, trigger a real-time coverage check (CRD), and complete documentation (DTR) — all without leaving their EHR. The workflow itself is coming next.</p>
+    <a class="btn" href="index.html">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+      Back to project overview
+    </a>
+  </div>
+</main>
+
+<footer>
+  <p>Interoperability Platform Strategy for Health Plans</p>
+</footer>
+
+</body>
+</html>
