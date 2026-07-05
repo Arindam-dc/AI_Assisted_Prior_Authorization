@@ -123,6 +123,7 @@
   }
   .field input:focus{outline:none;border-color:var(--teal-deep);}
   .field input.invalid{border-color:var(--bad);}
+  .field select.invalid{border-color:var(--bad);}
   .err-msg{font-size:13px;color:var(--bad);margin-top:14px;display:none;}
   .err-msg.show{display:block;}
 
@@ -274,6 +275,25 @@
         <div class="field"><label>Patient full name</label><input type="text" id="p-name" placeholder="Jane Rivera"></div>
         <div class="field"><label>Date of birth</label><input type="date" id="p-dob"></div>
         <div class="field"><label>Member ID</label><input type="text" id="p-member" placeholder="MBR-00482913"></div>
+        <div class="field">
+          <label>Insurance</label>
+          <div class="select-wrap">
+            <select class="big-select" id="p-insurance" style="padding:12px 40px 12px 14px;font-size:14.5px;">
+              <option value="">Select insurance plan…</option>
+              <option>UnitedHealthcare</option>
+              <option>Elevance Health (Anthem Blue Cross Blue Shield)</option>
+              <option>Aetna (CVS Health)</option>
+              <option>Cigna</option>
+              <option>Humana</option>
+              <option>Centene Corporation</option>
+              <option>Kaiser Permanente</option>
+              <option>Molina Healthcare</option>
+              <option>Health Care Service Corporation (HCSC)</option>
+              <option>GuideWell (Florida Blue)</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
         <div class="field">
           <label>Diagnosis code (ICD-10)</label>
           <input type="text" id="p-icd" placeholder="M54.5" list="icd10-list" autocomplete="off">
@@ -558,7 +578,7 @@
   }
 
   function validatePatientFields(){
-    const ids = ['p-name','p-dob','p-member','p-icd','p-provider','p-npi'];
+    const ids = ['p-name','p-dob','p-member','p-insurance','p-icd','p-provider','p-npi'];
     let ok = true;
     ids.forEach(id => {
       const el = document.getElementById(id);
@@ -613,6 +633,7 @@
         serviceNames, category: activeCat, docs, copay,
         patientName: document.getElementById('p-name').value.trim(),
         memberId: document.getElementById('p-member').value.trim(),
+        insurance: document.getElementById('p-insurance').value,
         diagnosis: icdCode + (ICD10_DB[icdCode] ? ' — ' + ICD10_DB[icdCode] : ''),
         placeOfService: posName
       }));
