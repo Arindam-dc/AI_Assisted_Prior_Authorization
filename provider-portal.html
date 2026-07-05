@@ -113,6 +113,17 @@
   .other-field input:focus{outline:none;border-color:var(--teal-deep);}
   .other-field input:not(:placeholder-shown){border-color:var(--coral);background:rgba(255,107,74,.04);}
 
+  /* ---- shared clinical justification field ---- */
+  .justification-field{margin-top:24px;padding-top:22px;border-top:1px solid var(--line);}
+  .justification-field label{display:block;font-size:13px;font-weight:600;color:var(--ink-soft);margin-bottom:8px;}
+  .justification-field textarea{
+    width:100%;padding:12px 14px;border-radius:9px;border:1.5px solid var(--line);
+    font-family:'Inter',sans-serif;font-size:14.5px;color:var(--ink);resize:vertical;min-height:80px;
+  }
+  .justification-field textarea:focus{outline:none;border-color:var(--teal-deep);}
+  .justification-field textarea.invalid{border-color:var(--bad);}
+  .justification-field .field-hint{margin-top:8px;}
+
   /* ---- patient details form ---- */
   .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
   @media (max-width:640px){.form-grid{grid-template-columns:1fr;}}
@@ -251,6 +262,12 @@
           <input type="text" id="lab-other" placeholder="Type the lab test name">
         </div>
       </div>
+
+      <div class="justification-field">
+        <label for="clinical-justification">Clinical justification</label>
+        <textarea id="clinical-justification" rows="3" placeholder="Briefly explain the clinical reasoning for ordering this service (symptoms, exam findings, failed conservative treatment, etc.)"></textarea>
+        <p class="field-hint">Applies to whichever service is selected above — imaging, surgical, or lab.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -303,7 +320,7 @@
         <div class="field"><label>Ordering provider</label><input type="text" id="p-provider" placeholder="Dr. Alan Chen"></div>
         <div class="field"><label>Provider NPI</label><input type="text" id="p-npi" placeholder="1932847560"></div>
       </div>
-      <p class="err-msg" id="form-error">Please complete all patient details and select a service before running the coverage check.</p>
+      <p class="err-msg" id="form-error">Please complete all patient details, the clinical justification, and select a service before running the coverage check.</p>
       <div style="margin-top:26px;">
         <button class="btn-primary" onclick="runCoverageCheck()">
           Check coverage requirements
@@ -588,12 +605,20 @@
     return ok;
   }
 
+  function validateJustification(){
+    const el = document.getElementById('clinical-justification');
+    if(!el.value.trim()){ el.classList.add('invalid'); return false; }
+    el.classList.remove('invalid');
+    return true;
+  }
+
   function runCoverageCheck(){
     const items = getSelectedItems();
     const patientOk = validatePatientFields();
+    const justificationOk = validateJustification();
     const errEl = document.getElementById('form-error');
 
-    if(items.length === 0 || !patientOk){
+    if(items.length === 0 || !patientOk || !justificationOk){
       errEl.classList.add('show');
       return;
     }
@@ -634,6 +659,7 @@
         patientName: document.getElementById('p-name').value.trim(),
         memberId: document.getElementById('p-member').value.trim(),
         insurance: document.getElementById('p-insurance').value,
+        justification: document.getElementById('clinical-justification').value.trim(),
         diagnosis: icdCode + (ICD10_DB[icdCode] ? ' — ' + ICD10_DB[icdCode] : ''),
         placeOfService: posName
       }));

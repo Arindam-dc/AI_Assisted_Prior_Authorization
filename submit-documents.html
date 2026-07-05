@@ -226,6 +226,7 @@
       <div class="context-item"><span class="label">Service requested</span><span class="value">${submission.serviceNames || '—'}</span></div>
       <div class="context-item"><span class="label">Diagnosis</span><span class="value">${submission.diagnosis || '—'}</span></div>
       <div class="context-item"><span class="label">Place of service</span><span class="value">${submission.placeOfService || '—'}</span></div>
+      <div class="context-item" style="flex-basis:100%;"><span class="label">Clinical justification</span><span class="value" style="font-weight:500;">${submission.justification || '—'}</span></div>
       <div class="context-item"><span class="label">Documents required</span><span class="value">${(submission.docs || []).length}</span></div>
     `;
   } else {
